@@ -15,15 +15,19 @@ import axios from "axios";
 interface IServerpageProps {
   searchParams?: {
     search?: string;
+    status?: string;
+    sort?: string;
   };
 }
 
-export default async function Component({ searchParams }: IServerpageProps) {
+export default async function Page({ searchParams }: IServerpageProps) {
   const response = await axios.get(
     "https://apis.codante.io/api/orders-api/orders",
     {
       params: {
         search: searchParams?.search,
+        status: searchParams?.status,
+        sort: searchParams?.sort,
       },
     }
   );
