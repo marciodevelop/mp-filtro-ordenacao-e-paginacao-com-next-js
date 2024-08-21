@@ -16,32 +16,50 @@ interface IPaginationProps {
     label: string;
     active: boolean;
   }[];
+  lastPage: number;
 }
 
 export default function Pagination(props: IPaginationProps) {
-  const { links } = props;
+  const { links, lastPage } = props;
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { replace } = useRouter();
 
-  function handleChangePage(page: string) {
-    const params = new URLSearchParams(searchParams);
+  const params = new URLSearchParams(searchParams);
 
-    if (Number(page) > 1) {
+  function handleChangePage(page: string) {
+    if (Number(page) > 1 && Number(page) <= lastPage) {
       params.set("page", page);
     } else {
-      params.delete("page");
+      params.set("page", "1");
     }
 
     replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
+  function handlePreviousPage() {
+    const page = Number(searchParams.get("page")) - 1;
+    handleChangePage(page.toString());
+  }
+
+  function handleNextPage() {
+    const page = Number(searchParams.get("page")) + 1;
+
+    handleChangePage(page.toString());
+  }
+
   return (
     <PaginationComponent>
       <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious />
+        <PaginationItem onClick={handlePreviousPage}>
+          <PaginationPrevious
+            className={`${
+              links[0].url
+                ? "cursor-pointer"
+                : "cursor-not-allowed text-slate-400"
+            }`}
+          />
         </PaginationItem>
         {links.map(({ label, url, active }, idx) => {
           if (label.includes("Próximo") || label.includes("Anterior")) {
@@ -58,7 +76,14 @@ export default function Pagination(props: IPaginationProps) {
             </PaginationItem>
           );
         })}
-        <PaginationItem>
+        <PaginationItem
+          className={`${
+            links[links.length - 1].url
+              ? "cursor-pointer"
+              : "cursor-not-allowed text-slate-400 disabled"
+          }`}
+          onClick={handleNextPage}
+        >
           <PaginationNext />
         </PaginationItem>
       </PaginationContent>

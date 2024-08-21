@@ -36,6 +36,7 @@ export default async function Page({ searchParams }: IServerpageProps) {
 
   const orders = response.data.data;
   const links = response.data.meta.links;
+  const lastPage = response.data.meta.last_page;
 
   return (
     <main className="container px-1 py-10 md:p-10">
@@ -53,7 +54,7 @@ export default async function Page({ searchParams }: IServerpageProps) {
         <CardContent>
           <OrdersTable orders={orders} />
           <div className="mt-8">
-            <Pagination links={links} />
+            <Pagination links={links} lastPage={lastPage} />
           </div>
         </CardContent>
       </Card>
