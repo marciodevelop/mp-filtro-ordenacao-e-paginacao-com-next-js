@@ -1,3 +1,4 @@
+"use client";
 import {
   Pagination as PaginationComponent,
   PaginationContent,
@@ -6,36 +7,57 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/components/ui/pagination';
+} from "@/components/ui/pagination";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export default function Pagination() {
+interface IPaginationProps {
+  links: {
+    url: string;
+    label: string;
+    active: boolean;
+  }[];
+}
+
+export default function Pagination(props: IPaginationProps) {
+  const { links } = props;
+
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { replace } = useRouter();
+
+  function handleChangePage(page: string) {
+    const params = new URLSearchParams(searchParams);
+
+    if (Number(page) > 1) {
+      params.set("page", page);
+    } else {
+      params.delete("page");
+    }
+
+    replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
   return (
     <PaginationComponent>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious />
         </PaginationItem>
-        <PaginationItem className="hidden md:inline-flex">
-          <PaginationLink isActive={true}>1</PaginationLink>
-        </PaginationItem>
-        <PaginationItem className="hidden md:inline-flex">
-          <PaginationLink>2</PaginationLink>
-        </PaginationItem>
-        <PaginationItem className="hidden md:inline-flex">
-          <PaginationLink>3</PaginationLink>
-        </PaginationItem>
-        <PaginationItem className="hidden md:inline-flex">
-          <PaginationEllipsis />
-        </PaginationItem>
-        <PaginationItem className="hidden md:inline-flex">
-          <PaginationLink>8</PaginationLink>
-        </PaginationItem>
-        <PaginationItem className="hidden md:inline-flex">
-          <PaginationLink>9</PaginationLink>
-        </PaginationItem>
-        <PaginationItem className="hidden md:inline-flex">
-          <PaginationLink>10</PaginationLink>
-        </PaginationItem>
+        {links.map(({ label, url, active }, idx) => {
+          if (label.includes("Próximo") || label.includes("Anterior")) {
+            return null;
+          }
+
+          return (
+            <PaginationItem key={idx}>
+              <PaginationLink
+                isActive={active}
+                onClick={() => handleChangePage(label)}
+                dangerouslySetInnerHTML={{ __html: label }}
+              />
+            </PaginationItem>
+          );
+        })}
         <PaginationItem>
           <PaginationNext />
         </PaginationItem>
